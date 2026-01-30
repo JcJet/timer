@@ -1,6 +1,6 @@
 # timer
 
-Minimal terminal task timer for Ubuntu/Linux.
+Minimal terminal task timer for Ubuntu/Linux. 
 
 Hotkeys:
 - **Space** — pause / resume
@@ -12,7 +12,11 @@ Features:
 - Clears terminal on start
 - Hides cursor while running (no blinking)
 - No dependencies beyond standard shell utilities
-- No bs
+- No ads
+- No subscriptions
+- No lag
+- No clutter
+- No unnecessary key presses
 
 ---
 
