@@ -17,7 +17,7 @@ Features:
 - No subscriptions
 - No lag
 - No clutter
-- No unnecessary key presses
+- No bs
 
 ---
 
