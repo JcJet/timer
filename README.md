@@ -6,6 +6,7 @@ Hotkeys:
 - **Space** — pause / resume
 - **r** — reset to `00:00:00`
 - **q** — quit
+- **m** — switch between `00:00:00` and `0m` (for trackers)
 
 Features:
 - Shows `HH:MM:SS`
