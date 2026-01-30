@@ -6,11 +6,12 @@ start=$(date +%s)
 paused_total=0
 pause_start=0
 
+show_minutes=0   # toggle with 'm'
 last_shown=-1
 last_running=-1
+last_mode=-1
 
 hide_cursor() {
-  # tput предпочтительнее, но если его нет — fallback на escape
   if command -v tput >/dev/null 2>&1; then
     tput civis 2>/dev/null || true
   else
@@ -35,14 +36,12 @@ trap cleanup EXIT INT TERM
 
 clear
 hide_cursor
-
-# raw-ish mode: no echo, no canonical (no Enter)
 stty -echo -icanon 2>/dev/null || true
 
+# намеренно НЕ пишем про 'm', чтобы не захламлять интерфейс
 printf "space=pause/resume | r=reset | q=quit\n\n"
 
 while true; do
-  # ждём клавишу максимум 0.1s, иначе идём дальше
   if IFS= read -rsn1 -t 0.1 key 2>/dev/null; then
     case "$key" in
       " ")
@@ -61,6 +60,10 @@ while true; do
         paused_total=0
         pause_start=0
         ;;
+      m|M)
+        # toggle display mode: HH:MM:SS <-> minutes
+        if (( show_minutes )); then show_minutes=0; else show_minutes=1; fi
+        ;;
       q|Q)
         exit 0
         ;;
@@ -70,15 +73,26 @@ while true; do
   now=$(date +%s)
   if (( running )); then
     cur=$((now - start - paused_total))
-    suffix="        "
+    pause_tag=""
   else
     cur=$((pause_start - start - paused_total))
-    suffix=" [PAUSE]"
+    pause_tag=" [PAUSE]"
   fi
 
-  if (( cur != last_shown || running != last_running )); then
+  # redraw if time or state or mode changed
+  if (( cur != last_shown || running != last_running || show_minutes != last_mode )); then
     last_shown=$cur
     last_running=$running
-    printf "\r%02d:%02d:%02d%s" $((cur/3600)) $(((cur%3600)/60)) $((cur%60)) "$suffix"
+    last_mode=$show_minutes
+
+    if (( show_minutes )); then
+      mins=$(((cur + 30) / 60))   # минуты, округление до ближайшей
+      out="${mins}m${pause_tag}"
+    else
+      out=$(printf "%02d:%02d:%02d%s" $((cur/3600)) $(((cur%3600)/60)) $((cur%60)) "$pause_tag")
+    fi
+
+    # фиксированная ширина, чтобы затирать хвост при смене режима
+    printf "\r%-32s" "$out"
   fi
 done
